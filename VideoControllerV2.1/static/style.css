@@ -1,0 +1,9 @@
+.video-player{
+    max-width: 750px;
+    position: relative;
+    overflow: hidden;
+}
+
+.video {
+    width: 100%;
+}
