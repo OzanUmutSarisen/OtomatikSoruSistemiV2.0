@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Page Title</title>
+  <link rel="stylesheet" href="static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <form action="{{ url_for('videoEnd') }}" method="post">
+        <div id="answerModel" class="modal">
+          <!-- Modal content -->
+          <div class="modal-content">
+            <span class="close">&times;</span>
+          </div>
+        </div>
+    </form>
+
+  <div class="videoPlayer">
+
+    <video src="static/ExampleVideo.mp4" class="video"></video>
+
+  </div>
+
+  <script >
+      const data = {{ data }};
+      let QuestionSize = {{ QuestionSize }};
+      var Questions = "{{ Question }}";
+      Questions = Questions.replaceAll("&#39;","")
+      Questions = Questions.replaceAll("[","")
+      Questions = Questions.replaceAll("]","")
+      Questions = Questions.split("%%, ")
+
+      const videoPlayer = document.querySelector(".videoPlayer");
+      const video = videoPlayer.querySelector(".video");
+
+      var modal = document.getElementById("answerModel");
+      var span = document.getElementsByClassName("modal-content")[0];
+      var answers =[]
+
+      data.push(0);
+
+      let start = 1;
+      let time = 0.0;
+      let stopperCount = 0;
+      let isStoptime = 1;
+
+      var arr=[];
+
+      realTimer = setInterval(Timer,1000);
+
+      function Timer(){
+          if (time === 0) {
+              video.play();
+          }
+          if (time === data[stopperCount]){
+              video.pause();
+              modal.style.display = "block";
+              span.innerHTML= "<p>"+Questions[stopperCount]+"<label>Answer</label><input type='text' placeholder='Answer' id='answerField' name='array[]' value='' class='cnt'>";
+              console.log("Stop");
+              if(stopperCount !== data.length - 1){
+                  stopperCount++;
+              }
+          }
+          if (time === data[stopperCount-1]+5){
+              answers.push(document.getElementById("answerField").value);
+              $.ajax({
+                data: {
+                    answers: document.getElementById("answerField").value,
+                    question: stopperCount
+                },
+                type: 'POST',
+                url: "{{ url_for('takeData') }}"
+              })
+              modal.style.display = "none";
+              video.play();
+          }
+          if(time === 20){
+              video.pause();
+              modal.style.display = "block";
+              let size = 0;
+              span.innerHTML = "";
+              while (size < 2){
+                span.innerHTML =span.innerHTML+"<p type='text' >Answer "+ size +" is "+ answers[size] +" </p>";
+                size++;
+                }
+              span.innerHTML= span.innerHTML + "<input type='submit' value='send''>";
+              clearInterval(realTimer);
+          }
+          console.log(time);
+          time++;
+      }
+
+
+  </script>
+
+</body>
+
+</html>
